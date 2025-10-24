@@ -1,0 +1,20 @@
+import(imports/std.func)
+cinclude(<stdlib.h>)
+cinclude(<string.h>)
+cinclude(<unistd.h>)
+
+// 環境・コマンド系
+
+lifunc(run_command, int:(deptr(char).cmd){
+    return(system(cmd))
+})
+
+lifunc(get_env, deptr(char):(deptr(char).key){
+    devar(deptr(char).v, getenv(key))
+    if(iseq(v, NULL), { return("") })
+    return(v)
+})
+
+lifunc(set_env, int:(deptr(char).key, deptr(char).val, int.overwrite){
+    return(setenv(key, val, overwrite))
+})

@@ -1,0 +1,65 @@
+
+FunC 標準ライブラリ（std.func）マニュアル
+===================================
+
+概要
+----
+std.func は FunC の標準ライブラリで、C/C++ の関数へのリンクをまとめたものです。
+このファイルを import(std.func) するだけで、便利な組み込み関数を使用可能になります。
+
+主な内容
+---------
+1. C ヘッダインクルード
+   - cinclude(<stdio.h>) → #include <stdio.h>
+   - cinclude(<stdlib.h>) → #include <stdlib.h>
+   - cinclude(<string.h>) → #include <string.h>
+
+2. 入出力系
+   - lifunc(print, printf) → #define print printf
+   - lifunc(println, puts) → #define println puts
+   - lifunc(scan, scanf) → #define scan scanf
+   - lifunc(randnum, rand) → #define randnum rand
+   - lifunc(srandnum, srand) → #define srandnum srand
+
+3. 数値変換系
+   - lifunc(inttostr, itoa) → #define inttostr itoa
+   - lifunc(strtoint, atoi) → #define strtoint atoi
+   - lifunc(strtofloat, atof) → #define strtofloat atof
+
+4. メモリ系
+   - lifunc(memcopy, memcpy) → #define memcopy memcpy
+   - lifunc(memsetto, memset) → #define memsetto memset
+
+5. 文字列系
+   - lifunc(strlenof, strlen) → #define strlenof strlen
+   - lifunc(strcmpto, strcmp) → #define strcmpto strcmp
+   - lifunc(strcopy, strcpy) → #define strcopy strcpy
+   - lifunc(strconcat, strcat) → #define strconcat strcat
+
+6. 比較系（ラッパー関数）
+   - lifunc(islte, int:(int.a,int.b){ return(islt(a, b+1)) })  
+     → a <= b 相当
+   - lifunc(isgte, int:(int.a,int.b){ return(isgt(a+1, b)) })  
+     → a >= b 相当
+   - lifunc(isneq, int:(auto.a, auto.b){ return(bnot(iseq(a, b))) })  
+     → a != b 相当
+
+使用方法
+--------
+- FunC コード内で import(std.func) と書くだけで上記の関数が利用可能
+- C/C++ の関数呼び出しに直接リンクされるため、FunC 側でのラッパー定義は不要
+- 比較系関数は FunC で追加されたラッパー関数として扱われ、C コード生成時に自動変換されます
+
+例
+---
+FunC:
+import(std.func)
+devar(int.x, 10)
+devar(int.y, 20)
+cfunc(print, "Sum = %d\n", add(x, y))
+
+→ C/C++:
+#include <stdio.h>
+int x = 10;
+int y = 20;
+printf(LITERAL_0, (x + y));

@@ -1,0 +1,10 @@
+import(imports/simplehttp.func)
+cinclude(<stdio.h>)
+cinclude(<stdlib.h>)
+cinclude(<string.h>)
+
+main:int:(){
+    // index.html を 8080 ポートで配信
+    serve_static(8080, "index.html")
+    return(0)
+}

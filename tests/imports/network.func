@@ -1,0 +1,87 @@
+import(imports/std.func)
+cinclude(<stdio.h>)
+cinclude(<stdlib.h>)
+cinclude(<string.h>)
+cinclude(<unistd.h>)
+cinclude(<arpa/inet.h>)
+cinclude(<sys/socket.h>)
+cinclude(<netinet/in.h>)
+
+// ソケットを作成して接続を開く
+// 戻り値: ソケットファイルディスクリプタ（失敗時は -1）
+lifunc(open_connection, int:(deptr(char).addr, int.port){
+    devar(int.sockfd, socket(AF_INET, SOCK_STREAM, 0))
+    if(islt(sockfd, 0), {
+        return(-1)
+    })
+    devar(struct.sockaddr_in.servaddr)
+    memsetto(refptr(servaddr), 0, sizeof(servaddr))
+    toeq(servaddr.sin_family, AF_INET)
+    toeq(servaddr.sin_port, htons(port))
+    if(islte(inet_pton(AF_INET, addr, refptr(servaddr.sin_addr)), 0), {
+        return(-1)
+    })
+    if(islt(connect(sockfd, cast(struct.deptr(sockaddr), refptr(servaddr)), sizeof(servaddr)), 0), {
+        close(sockfd)
+        return(-1)
+    })
+    return(sockfd)
+})
+
+// データを送信する
+// 戻り値: 送信バイト数（失敗時は -1）
+lifunc(send_data, int:(int.sockfd, deptr(char).data){
+    devar(int.n, send(sockfd, data, strlenof(data), 0))
+    return(n)
+})
+
+// データを受信する
+// 戻り値: 受信データ（失敗時は空文字列 ""）
+lifunc(receive_data, deptr(char):(int.sockfd, int.bufsize){
+    devar(char.index(buffer, bufsize))
+    devar(int.n, recv(sockfd, buffer, sub(bufsize, 1), 0))
+    if(islt(n, 0), {
+        return("")
+    })
+    toeq(index(buffer, n), '\0')
+    return(buffer)
+})
+
+// 接続を閉じる
+lifunc(close_connection, void:(int.sockfd){
+    close(sockfd)
+})
+
+// サーバーソケットを作成する
+// 戻り値: ソケットファイルディスクリプタ（失敗時は -1）
+lifunc(create_server_socket, int:(int.port, int.backlog){
+    devar(int.server_fd, socket(AF_INET, SOCK_STREAM, 0))
+    if(islt(server_fd, 0), {
+        return(-1)
+    })
+    devar(int.opt, 1)
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, refptr(opt), sizeof(opt))
+    devar(struct.sockaddr_in.address)
+    memsetto(refptr(address), 0, sizeof(address))
+    toeq(address.sin_family, AF_INET)
+    toeq(address.sin_addr.s_addr, INADDR_ANY)
+    toeq(address.sin_port, htons(port))
+    if(islt(bind(server_fd, cast(struct.deptr(sockaddr), refptr(address)), sizeof(address)), 0), {
+        close(server_fd)
+        return(-1)
+    })
+    if(islt(listen(server_fd, backlog), 0), {
+        close(server_fd)
+        return(-1)
+    })
+    return(server_fd)
+})
+
+// クライアント接続を受け付ける
+// 戻り値: クライアントソケット（失敗時は -1）
+lifunc(accept_client, int:(int.server_fd){
+    devar(struct.sockaddr_in.client_addr)
+    devar(socklen_t.addrlen, sizeof(client_addr))
+    devar(int.client_fd, accept(server_fd, cast(struct.deptr(sockaddr), refptr(client_addr)), refptr(addrlen)))
+    return(client_fd)
+})

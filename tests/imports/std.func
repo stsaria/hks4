@@ -1,0 +1,39 @@
+// 標準ライブラリ（std.func）
+// C関数へのリンクをまとめたもの
+// これを import(std.func) で読み込むだけでOK
+
+cinclude(<stdio.h>)
+cinclude(<stdlib.h>)
+cinclude(<string.h>)
+
+// 入出力系
+lifunc(print, printf)
+lifunc(println, puts)
+lifunc(scan, scanf)
+lifunc(randnum, rand)
+lifunc(srandnum, srand)
+
+// 数値変換系
+lifunc(inttostr, itoa)
+lifunc(strtoint, atoi)
+lifunc(strtofloat, atof)
+
+// メモリ系
+lifunc(memcopy, memcpy)
+lifunc(memsetto, memset)
+
+// 文字列系
+lifunc(strlenof, strlen)
+lifunc(strcmpto, strcmp)
+lifunc(strcopy, strcpy)
+lifunc(strconcat, strcat)
+
+lifunc(islte, int:(int.a,int.b){
+    return(islt(a, b+1))
+})
+lifunc(isgte, int:(int.a, int.b){
+    return(isgt(a+1, b))
+})
+lifunc(isneq, int:(auto.a, auto.b){
+    return(bnot(iseq(a, b)))
+})

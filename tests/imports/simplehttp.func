@@ -1,0 +1,37 @@
+import(imports/std.func)
+import(imports/network.func)
+import(imports/file.func)
+cinclude(<stdlib.h>)
+cinclude(<string.h>)
+cinclude(<stdio.h>)
+
+// HTTP 簡易サーバー（静的ファイル配信）
+
+lifunc(serve_static, int:(int.port, deptr(char).file_path){
+    devar(int.server_fd, create_server_socket(port, 5))
+    if(islt(server_fd, 0), { return(-1) })
+
+    while(1, {
+        devar(int.client_fd, accept_client(server_fd))
+        if(islt(client_fd, 0), { continue })
+
+        devar(deptr(FILE).fp, open_file(file_path, "rb"))
+        if(iseq(fp, NULL), {
+            devar(deptr(char).notfound, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nNot Found")
+            send_data(client_fd, notfound)
+            close_connection(client_fd)
+            continue
+        })
+        devar(long.size, file_size(file_path))
+        devar(deptr(char).buf, read_file(fp, add(size,1)))
+        close_file(fp)
+
+        devar(deptr(char).header, cast(deptr(char), malloc(256)))
+        sprintf(header, "HTTP/1.1 200 OK\r\nContent-Length: %ld\r\nContent-Type: text/html\r\n\r\n", size)
+        send_data(client_fd, header)
+        send_data(client_fd, buf)
+
+        close_connection(client_fd)
+    })
+    return(0)
+})

@@ -1,0 +1,29 @@
+import(imports/std.func)
+cinclude(<math.h>)
+cinclude(<stdlib.h>)
+cinclude(<time.h>)
+
+// 数学・乱数
+
+lifunc(sqrtf, double:(double.x){
+    return(sqrt(x))
+})
+
+lifunc(powf, double:(double.base, double.exp){
+    return(pow(base, exp))
+})
+
+lifunc(abs_int, int:(int.x){
+    return(abs(x))
+})
+
+lifunc(random_range, int:(int.min, int.max){
+    devar(int.r, rand())
+    devar(int.range, sub(max, min))
+    if(islte(range, 0), { return(min) })
+    return(add(min, mod(r, add(range,1))))
+})
+
+lifunc(seed_rand, void:(unsigned.int.seed){
+    srand(seed)
+})

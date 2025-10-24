@@ -1,0 +1,105 @@
+
+FunC 言語仕様書
+================
+
+概要
+----
+FunC 言語（FunC）は、Pythonで書かれたコンパイラで、独自の関数呼び出し構文と型付き変数宣言を使い、最終的にC言語に変換されます。
+名前の由来は "Func" と "C" を掛け合わせたもので、関数中心の構文でC言語互換コードを生成することを意図しています。
+
+基本構文
+--------
+1. 関数定義
+   <戻り値の型>:(引数1の型.名前, 引数2の型.名前, ...) { ... }
+   - 複数型対応: int|float: (...) { ... } のように | で型を分けられます。
+   - main関数は main:<型>:(...) { ... } として定義します。
+
+2. 変数宣言
+   devar(int.x, 10) → int x = 10;
+   - 初期値は省略可能: devar(int.y) → int y;
+
+3. 代入
+   toeq(x, 5) → x = 5;
+
+4. 制御構造
+   - while(条件, {本体}) → while(条件){本体}
+   - for(初期化, 条件, 増減, {本体}) → for(...) {...}
+   - if(条件, {本体}) → if(条件){本体}
+   - elif(条件, {本体}) → else if(条件){本体}
+   - else({本体}) → else{本体}
+
+5. 関数呼び出し
+   関数名(引数1, 引数2, ...)
+   - 組み込み関数例:
+     - cinclude(<stdio.h>) → #include <stdio.h>
+     - cfunc(printf, "Hello %s\n", name) → printf("Hello %s\n", name);
+     - lifunc(show, FUNC_0) → #define show FUNC_0
+     - devar(int.x, 10) → int x = 10;
+     - toeq(x, 5) → x = 5;
+     - while(x<10, { ... }) → while(x<10){ ... }
+     - for(i=0, i<10, i=i+1, { ... }) → for(i=0; i<10; i=i+1){ ... }
+     - return(x) → return (x);
+     - cast(float, x) → (float)(x)
+     - struct(Person, {int.age; float.height;}) → typedef struct Person {int age; float height;} Person;
+
+6. 演算子
+   - 単項: bnot(x) → ~x, ptr(x) → *x, refptr(x) → &x
+   - 二項: add(x,y) → x+y, sub(x,y) → x-y, mul(x,y) → x*y, div(x,y) → x/y, mod(x,y) → x%y
+   - ビット演算: band(x,y) → x & y, bor(x,y) → x | y, bxor(x,y) → x ^ y, blshift(x,y) → x << y, brshift(x,y) → x >> y
+   - 比較演算: iseq(x,y) → x == y, islt(x,y) → x < y, isgt(x,y) → x > y
+
+7. 型キャスト
+   cast(float, x) → (float)(x)
+
+8. 構造体定義
+   struct(Person, {int.age; float.height;}) → typedef struct Person {int age; float height;} Person;
+
+9. ライブラリインポート
+   import(utils.func) → utils.func の内容を展開
+
+リテラル
+-------
+- 文字列: "文字列"
+- 数値: 整数 または 浮動小数点
+- コンパイラはリテラルを自動で #define LITERAL_X に変換して C コードに展開
+
+コンパイルフロー
+---------------
+1. コメント除去（// ... または /* ... */）
+2. インポートの展開
+3. リテラルの最適化と #define 展開
+4. 関数の最適化・ID付与
+5. 最終的に C/C++ コードとして出力
+
+組み込み関数一覧（例付き）
+------------------------
+- cinclude(<stdio.h>) : C ヘッダをインクルード
+- cfunc(printf, "Hello %s\n", name) : C 関数を呼び出す
+- lifunc(show, FUNC_0) : 関数名リンク
+- devar(int.x, 10) : 変数宣言
+- toeq(x, 5) : 代入
+- while(x<10, { ... }) : while ループ
+- for(i=0, i<10, i=i+1, { ... }) : for ループ
+- return(x) : return 文
+- cast(float, x) : 型キャスト
+- bnot(x), band(x,y), bor(x,y), bxor(x,y), blshift(x,y), brshift(x,y), iseq(x,y), islt(x,y), isgt(x,y), add(x,y), sub(x,y), mul(x,y), div(x,y), mod(x,y), ptr(x), refptr(x) : 演算子
+- if(x>0, { ... }), elif(x<0, { ... }), else({ ... }) : 条件分岐
+- struct(Person, {int.age; float.height;}) : 構造体定義
+
+出力例
+--------
+FunC:
+devar(int.x, 5)
+devar(int.y, 10)
+cfunc(printf, "Sum = %d\n", add(x,y))
+
+→ C/C++:
+int x = 5;
+int y = 10;
+printf(LITERAL_0, (x + y));
+
+備考
+-----
+- FunC は関数呼び出しベースの構文で、ネストや複雑な型にも対応
+- すべての出力は C/C++ 互換コードとして生成される
+- .func ファイルは UTF-8 エンコード推奨

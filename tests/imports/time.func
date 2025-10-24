@@ -1,0 +1,23 @@
+import(imports/std.func)
+cinclude(<time.h>)
+cinclude(<unistd.h>)
+cinclude(<stdio.h>)
+cinclude(<stdlib.h>)
+cinclude(<string.h>)
+
+// 時刻ユーティリティ
+
+lifunc(now_unix, long:(){
+    return(time(NULL))
+})
+
+lifunc(sleep_seconds, void:(int.sec){
+    sleep(sec)
+})
+
+lifunc(format_time, deptr(char):(long.timestamp, deptr(char).buf, int.buflen){
+    devar(time_t.t, timestamp)
+    devar(struct.tm.tm_ptr, localtime(refptr(t)))
+    strftime(buf, buflen, "%Y-%m-%d %H:%M:%S", tm_ptr)
+    return(buf)
+})

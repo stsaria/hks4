@@ -1,0 +1,62 @@
+import(imports/std.func)
+cinclude(<stdio.h>)
+cinclude(<stdlib.h>)
+cinclude(<string.h>)
+cinclude(<unistd.h>)
+
+// =============================
+// ファイル操作ライブラリ (file.func)
+// =============================
+
+// ファイルを開く
+// 戻り値: FILEポインタ (失敗時はNULL)
+lifunc(open_file, deptr(FILE):(deptr(char).path, deptr(char).mode){
+    devar(deptr(FILE).fp, fopen(path, mode))
+    return(fp)
+})
+
+// ファイルを閉じる
+lifunc(close_file, void:(deptr(FILE).fp){
+    fclose(fp)
+})
+
+// ファイルに文字列を書き込む
+// 戻り値: 書き込んだ文字数（失敗時は負数）
+lifunc(write_file, int:(deptr(FILE).fp, deptr(char).data){
+    return(fprintf(fp, "%s", data))
+})
+
+// ファイルを読み込む（全内容を返す）
+// bufsize は読み込みバッファサイズ（例: 1024）
+// 戻り値: 読み込んだ文字列（失敗時は ""）
+lifunc(read_file, deptr(char):(deptr(FILE).fp, int.bufsize){
+    devar(char.index(buffer, bufsize))
+    devar(deptr(char).result, cast(deptr(char), malloc(bufsize)))
+    devar(int.total, 0)
+    while(bnot(feof(fp)), {
+        devar(int.n, fread(buffer, 1, sub(bufsize, 1), fp))
+        if(islte(n, 0), { break })
+        toeq(index(buffer, n), '\0')
+        strcat(result, buffer)
+        toeq(total, add(total, n))
+    })
+    return(result)
+})
+
+// ファイルが存在するか確認
+// 戻り値: 1 = 存在, 0 = 存在しない
+lifunc(file_exists, int:(deptr(char).path){
+    devar(int.ret, access(path, 0))
+    return(iseq(ret, 0))
+})
+
+// ファイルサイズを取得
+// 戻り値: バイト数（失敗時は -1）
+lifunc(file_size, long:(deptr(char).path){
+    devar(deptr(FILE).fp, fopen(path, "rb"))
+    if(iseq(fp, NULL), { return(-1) })
+    fseek(fp, 0, SEEK_END)
+    devar(long.size, ftell(fp))
+    fclose(fp)
+    return(size)
+})

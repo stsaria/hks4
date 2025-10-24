@@ -1,0 +1,17 @@
+import(imports/std.func)
+cinclude(<pthread.h>)
+cinclude(<stdlib.h>)
+cinclude(<stdio.h>)
+
+// pthread ベースのスレッドユーティリティ
+
+lifunc(start_thread, deptr(unsigned.long):(deptr(void).funcptr, deptr(void).arg){
+    devar(pthread_t.tid)
+    devar(int.ret, pthread_create(refptr(tid), NULL, funcptr, arg))
+    if(islt(ret, 0), { return(0) })
+    return((unsigned.long)tid)
+})
+
+lifunc(join_thread, void:(unsigned.long.thread_id){
+    pthread_join(cast(pthread_t, thread_id), NULL)
+})

@@ -1,0 +1,38 @@
+import(imports/std.func)
+cinclude(<string.h>)
+cinclude(<stdlib.h>)
+cinclude(<stdio.h>)
+
+// 文字列ユーティリティ
+
+lifunc(trim, deptr(char):(deptr(char).s){
+    devar(deptr(char).p, s)
+    while(iseq(index(p,0), ' ') , { toeq(p, add(p,1)) })
+    devar(deptr(char).res, cast(deptr(char), malloc(add(strlenof(p), 1))))
+    if(iseq(res, NULL), { return("") })
+    strcpy(res, p)
+    devar(int.len, strlenof(res))
+    while(gt(len, 0) , {
+        if(ne(index(res, sub(len,1)), ' '), { break })
+        len = sub(len, 1)
+        toeq(index(res, len), '\0')
+    })
+    return(res)
+})
+
+lifunc(split_first, deptr(char):(deptr(char).s, deptr(char).delim){
+    devar(deptr(char).copy, cast(deptr(char), malloc(add(strlenof(s),1))))
+    if(iseq(copy, NULL), { return("") })
+    strcpy(copy, s)
+    devar(deptr(char).tok, strtok(copy, delim))
+    if(iseq(tok, NULL), { return("") })
+    devar(deptr(char).res, cast(deptr(char), malloc(add(strlenof(tok),1))))
+    strcpy(res, tok)
+    return(res)
+})
+
+lifunc(find, int:(deptr(char).s, deptr(char).substr){
+    devar(char.ptr, strstr(s, substr))
+    if(iseq(ptr, NULL), { return(-1) })
+    return(ptr - s)
+})
