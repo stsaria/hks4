@@ -346,6 +346,7 @@ class BuiltInFuncs:
             parseds = [BlockOptimizer.parse(arg, dontAddSemicolon=True) for arg in args]
             return f"("+(f" {op} ".join(parseds))+")"
         return ""
+    @staticmethod
     def ifsF(block:str) -> str:
         args = BlockOptimizer.getArgs(block, 1)
         if block.startswith("else"):
@@ -357,17 +358,22 @@ class BuiltInFuncs:
         funcName = block.split("(")[0].replace("elif", "else if")
 
         return f"{funcName}({cond})"+"{"+body+"}"
+    @staticmethod
     def struct(block:str) -> str:
         args = BlockOptimizer.getArgs(block)
         structName = args[0]
         body = BlockOptimizer.parses(args[1])
         Compiled.structDefineds += f"typedef struct {structName} "+"{"+body+"} "+f"{structName};\n"
         return ""
+    @staticmethod
     def index(block:str) -> str:
         args = BlockOptimizer.getArgs(block)
         arrayName = BlockOptimizer.parse(args[0], dontAddSemicolon=True)
         index = BlockOptimizer.parse(args[1], dontAddSemicolon=True) if len(args) >=2 else ""
         return f"{arrayName}[{index}]"
+    @staticmethod
+    def controlState(block:str) -> str:
+        return block.split("(")[0]
 
 class FunCompiler:
     @staticmethod
@@ -476,6 +482,12 @@ def _init():
         minArgsLength=1,
         body=BuiltInFuncs.index,
         dontAddSemicolon=True
+    ))
+    Funcs.addFunc(Func(
+        name="(continue|break)",
+        minArgsLength=0,
+        body=BuiltInFuncs.controlState,
+        dontAddSemicolon=False
     ))
 def main():
     _init()
