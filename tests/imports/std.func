@@ -34,6 +34,7 @@ lifunc(islte, int:(int.a,int.b){
 lifunc(isgte, int:(int.a, int.b){
     return(isgt(a+1, b))
 })
-lifunc(isneq, int:(auto.a, auto.b){
-    return(bnot(iseq(a, b)))
+lifunc(isneq, int:(auto>a, auto.b){
+    return(not(iseq(a, b)))
 })
+

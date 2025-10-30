@@ -1,7 +1,13 @@
-import(std.func)
+import(imports/std.func)
+
+struct(aaa, {
+    devar(int.a)
+    devar(int.b)
+    devar(int.c)
+})
 
 main:int:(){
-    for(devar(int.i, 1), islte(i, 100), toeq(i, add(i, 1)), {
+    lifunc(fizzbuzz, void:(int.i){
         if(iseq(mod(i, 15), 0), {
             printf("FizzBuzz\n")
         })
@@ -15,4 +21,5 @@ main:int:(){
             printf("%d\n", i)
         })
     })
+    for(devar(int.i, 1), islte(i, 100), toeq(i, add(i, 1)), fizzbuzz(i))
 }

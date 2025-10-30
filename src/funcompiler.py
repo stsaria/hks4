@@ -10,14 +10,13 @@ NAME_CHAR_RE_STR = r"[A-Za-z0-9_]"
 FUNCALL_RE = reCompile(r"([A-Za-z_][A-Za-z0-9_]*)\(((?:[^()]+|(?0))*)\)")
 DEFINED_LITERAL_RE = regex.compile(r"^#define (.+?) (.+?)$", regex.MULTILINE)
 VAR_TYPE_RE_STR = VAR_NAME_RE_STR = r"[A-Za-z_][A-Za-z0-9_\(\)]*(?:\*+)?"
-VAR_TYPE_AND_NAME_RE_STR = VAR_TYPE_RE_STR + r"\." + VAR_NAME_RE_STR
+VAR_TYPE_AND_NAME_RE_STR = VAR_TYPE_RE_STR + r"(?:\>|\.)" + VAR_NAME_RE_STR
 TO_DEFINE_ARGS_RE_STR = r"(?:{0}(?:,{0})*)?".format(VAR_TYPE_AND_NAME_RE_STR)
 LITERAL_RE = reCompile(r"\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'|(?<![A-Za-z_\"])\\d+(?![A-Za-z_])")
 
 FIRST_SEPARATIONS_FOR_LITERALS_STR = r"(?<!"+NAME_CHAR_RE_STR+")"
 SECOND_SEPARATIONS_FOR_LITERALS_STR = r"(?!"+NAME_CHAR_RE_STR+")"
 FUNC_BODY_STR = r"(?P<body>(?:[^{}]|{(?&body)})*)"
-VOID_VOID_FUNC_RE = reCompile(r"{"+FUNC_BODY_STR+r"}")
 FUNC_RE = reCompile(
     r"(" + VAR_TYPE_RE_STR + r"):\((" + TO_DEFINE_ARGS_RE_STR + r")\){" + FUNC_BODY_STR + r"}"
 )
@@ -125,7 +124,7 @@ class BlockOptimizer:
             return block + (";\n" if not dontAddSemicolon else "")
         except ValueError as e:
             pass
-        blocks = cls.splitST(block, pattern=r"(\~|\.)")
+        blocks = cls.splitST(block, pattern=r"(\~|\.|\>)")
         if len(blocks) > 1:
             block = ""
             for b in blocks:
@@ -283,16 +282,16 @@ class BuiltInFuncs:
     def whileF(block:str) -> str:
         args = BlockOptimizer.getArgs(block)
         cond = BlockOptimizer.parse(args[0], dontAddSemicolon=True)
-        body = BlockOptimizer.parses(args[1])
-        return f"while({cond})"+"{"+body+"}"
+        content = BlockOptimizer.parses(args[1])
+        return f"while({cond})"+"{"+content+"}"
     @staticmethod
     def forF(block:str) -> str:
         args = BlockOptimizer.getArgs(block)
         init = BlockOptimizer.parse(args[0], dontAddSemicolon=True)
         cond = BlockOptimizer.parse(args[1], dontAddSemicolon=True)
         step = BlockOptimizer.parse(args[2], dontAddSemicolon=True)
-        body = BlockOptimizer.parses(args[3])
-        return f"for({init}; {cond}; {step})"+"{"+body+"}"
+        content = BlockOptimizer.parses(args[3])
+        return f"for({init}; {cond}; {step})"+"{"+content+"}"
     @staticmethod
     def returnF(block:str) -> str:
         args = BlockOptimizer.getArgs(block)
@@ -314,6 +313,8 @@ class BuiltInFuncs:
         funcName = block.split("(")[0]
         if len(args) == 1:
             match funcName:
+                case "not":
+                    return f"(!({a}))"
                 case "bnot":
                     return f"(~{a})"
                 case "ptr":
@@ -460,7 +461,7 @@ def _init():
         dontAddSemicolon=True
     ))
     Funcs.addFunc(Func(
-        name="(bnot|band|bor|bxor|blshift|brshift|iseq|islt|isgt|add|sub|mul|div|mod|ptr|refptr|deptr)",
+        name="(bnot|band|bor|bxor|blshift|brshift|iseq|islt|isgt|add|sub|mul|div|mod|ptr|refptr|deptr|not)",
         minArgsLength=1,
         body=BuiltInFuncs.operator,
         dontAddSemicolon=True
