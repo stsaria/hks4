@@ -5,18 +5,6 @@ cinclude(<time.h>)
 
 // 数学・乱数
 
-lifunc(sqrtf, double:(double.x){
-    return(sqrt(x))
-})
-
-lifunc(powf, double:(double.base, double.exp){
-    return(pow(base, exp))
-})
-
-lifunc(abs_int, int:(int.x){
-    return(abs(x))
-})
-
 lifunc(random_range, int:(int.min, int.max){
     devar(int.r, rand())
     devar(int.range, sub(max, min))

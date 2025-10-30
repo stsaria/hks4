@@ -1,0 +1,20 @@
+import(imports/std.func)
+import(imports/math.func)
+
+main:int:(){
+    devar(int.n)
+    devar(int.m)
+    print("n=")
+    scanf("%d",refptr(n))
+    print("m=")
+    scan("%d",refptr(m))
+    devar(int.l, 0)
+    devar(int.p, m)
+
+    while(islt(p, add(n, 1)), {
+        toeq(l, add(l, div(n, p)))
+        toeq(p, mul(p, m))
+    })
+
+    printf("l=%d\n", l)
+}
